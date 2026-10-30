@@ -1,0 +1,11 @@
+ベストテンFONT / BestTen DOT
+Author: FLOP DESIGN
+Copyright (C) 2013 M+ Font Project. FLOP DESIGN
+Official page: https://flopdesign.booth.pm/items/2747965
+The unchanged OTF is embedded in the CSS for offline use.
+
+M+ BITMAP FONTS
+Copyright (C) 2002-2004 COZ
+These fonts are free software.
+Unlimited permission is granted to use, copy, and distribute it, with or without modification, either commercially and noncommercially.
+THESE FONTS ARE PROVIDED "AS IS" WITHOUT WARRANTY.

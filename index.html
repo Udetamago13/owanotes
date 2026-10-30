@@ -1,0 +1,137 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="theme-color" content="#fff9fc">
+  <title>燈は可愛くないんだよ！</title>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Cpath fill='%23ef72aa' d='M2 2h12v12H2zm16 0h12v12H18zM2 18h12v12H2z'/%3E%3C/svg%3E">
+  <link rel="stylesheet" href="style.css">
+  <script src="engine.js" defer></script>
+  <script src="hint-solver.js" defer></script>
+  <script src="images.js" defer></script>
+  <script src="app.js" defer></script>
+</head>
+<body>
+  <div id="brightness" aria-hidden="true"></div>
+  <button id="settings-open" class="settings-link" aria-haspopup="dialog">設定 </button>
+  <button id="screen-exit" class="screen-exit" type="button" aria-label="前の画面へ戻る"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M10 4h9v16h-9M13 12H3m4-4-4 4 4 4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="square" stroke-linejoin="miter"/></svg></button>
+  <main id="app">
+    <section class="screen gate" id="password-screen" aria-labelledby="password-heading">
+      <div class="tiny-puzzle" aria-hidden="true"><i></i><i></i><i></i><i></i></div>
+      <form id="password-form" class="gate-form" autocomplete="off">
+        <h1 id="password-heading">パスワード</h1>
+        <div class="password-field"><div class="password-entry"><input id="password" type="password" aria-label="パスワード" autocomplete="off" autocapitalize="none" spellcheck="false" required maxlength="64"><span id="password-mask" class="password-mask" aria-hidden="true"></span></div><button id="password-eye" type="button" class="text-button" aria-label="パスワードを表示" aria-pressed="false">表示</button></div>
+        <p id="password-error" class="message" role="status"></p>
+        <button class="primary next" type="submit">つぎへ <span aria-hidden="true">→</span></button>
+      </form>
+    </section>
+
+    <section class="screen name-screen" id="name-screen" aria-labelledby="name-heading" hidden>
+      <h1 id="name-heading">名前を決めてください</h1>
+      <div class="carousel-wrap">
+        <div class="orbit-line" aria-hidden="true"></div>
+        <div id="name-carousel" class="carousel" aria-label="名前の候補"></div>
+      </div>
+      <div class="name-navigation"><button id="name-prev" class="arrow" aria-label="前の名前">←</button><span id="name-page" aria-live="polite">01 / 05</span><button id="name-next" class="arrow" aria-label="次の名前">→</button></div>
+      <button id="name-confirm" class="primary">この名前にする <span aria-hidden="true">→</span></button>
+      <button id="name-cancel" class="text-button" hidden>もどる</button>
+    </section>
+
+    <section class="screen title-screen" id="title-screen" aria-labelledby="game-title" hidden>
+      <div class="title-emblem tiny-puzzle" aria-hidden="true"><i></i><i></i><i></i><i></i></div>
+      <h1 id="game-title"><span class="title-first"><span id="title-secret">おわーのーつ</span>の</span><span>面白い部分だけで</span><span>構成されてる</span><span class="title-last">神ゲーム。</span></h1>
+      <button id="title-start" class="primary title-start">はじめる <span aria-hidden="true">→</span></button>
+      <p class="title-player">プレイヤー <span id="title-player"></span></p>
+    </section>
+
+    <section class="screen setup-screen" id="setup-screen" aria-labelledby="setup-heading" hidden>
+      <header class="section-heading"><h1 id="setup-heading">パズルの設定</h1></header>
+      <div class="setup-grid">
+        <div class="image-column">
+          <div id="image-zone" class="image-zone" role="group" aria-label="画像をドロップ、または貼り付け">
+            <div id="empty-image"><div class="image-symbol" aria-hidden="true">＋</div><strong>画像がありません</strong><p>画像をここにドロップ<br>または右クリックで貼り付け</p></div>
+            <div id="image-stage" class="image-stage" hidden><img id="image-preview" alt="選んだ画像" draggable="false"><div id="crop-box" class="crop-box" hidden></div></div>
+          </div>
+          <div class="image-actions"><button id="choose-image" class="secondary">画像を選ぶ</button><button id="paste-image" class="secondary">貼り付け</button><button id="crop-toggle" class="secondary" type="button" aria-pressed="false" hidden>切り取る</button><button id="crop-clear" class="text-button" type="button" hidden>全体に戻す</button><button id="clear-image" class="text-button" hidden>消す</button></div>
+          <input id="image-file" type="file" accept="image/*" hidden>
+          <p class="image-help">コピーした画像は Ctrl＋V でも貼り付けられます。</p>
+          <p id="image-status" class="message" role="status"></p>
+        </div>
+        <form id="setup-form" class="setup-fields">
+          <div class="setting-group"><span class="field-label">名前</span><button id="setup-name" class="name-change" type="button"><span id="setup-player"></span><span class="change-caption">変更 →</span></button></div>
+          <fieldset class="setting-group"><legend>マス数</legend><div id="grid-choices" class="grid-choices" role="radiogroup" aria-label="マス数"></div></fieldset>
+          <fieldset class="setting-group"><legend>制限時間</legend><div class="time-inputs"><label><input id="hours" type="text" inputmode="numeric" value="0" maxlength="2" aria-label="時"><span>時</span></label><label><input id="minutes" type="text" inputmode="numeric" value="3" maxlength="2" aria-label="分"><span>分</span></label><label><input id="seconds" type="text" inputmode="numeric" value="0" maxlength="2" aria-label="秒"><span>秒</span></label></div><label class="unlimited"><input id="unlimited" type="checkbox"><span class="check-box" aria-hidden="true"></span>無制限</label></fieldset>
+          <p id="setup-error" class="message" role="status"></p>
+          <button id="play-start" class="primary" type="submit">あそぶ <span aria-hidden="true">→</span></button>
+        </form>
+      </div>
+    </section>
+
+    <section class="screen play-screen" id="play-screen" aria-label="スライドパズル" hidden>
+      <div class="play-top"><span id="play-player"></span><span id="play-size"></span></div>
+      <div class="scoreboard"><div><span id="timer-label" class="stat-label">のこり時間</span><strong id="timer">00:03:00</strong></div><div><span class="stat-label">手数</span><strong><span id="moves">0</span><small> 手</small></strong></div></div>
+      <div id="play-workspace" class="play-workspace">
+        <div id="board-shell" class="board-shell"><div id="board" class="board" aria-label="空いているマスの隣を押すと動きます"></div></div>
+        <aside id="reference-image" class="reference-image" aria-label="元画像" hidden><h2>元画像</h2><div id="goal-clip" class="goal-clip"><img id="goal-image" alt="パズルに使う範囲の元画像"></div></aside>
+      </div>
+      <div class="play-actions"><button id="show-goal" class="secondary reference-toggle" aria-pressed="false" aria-controls="reference-image">元画像を出す <span id="reference-state">OFF</span></button><button id="show-hint" class="secondary" type="button" aria-haspopup="dialog">ヒント</button><button id="reset-board" class="secondary">リセット</button><button id="shuffle-board" class="secondary">シャッフル</button><button id="quit-play" class="text-button">やめる</button></div>
+      <p class="play-help">空いているマスの隣をクリック。矢印キーでも動かせます。</p>
+    </section>
+
+    <section class="screen credits-screen" id="credits-screen" aria-label="クレジット" hidden>
+      <div class="credit-video-wrap"><video id="credits-video" src="assets/video/credits.mp4" playsinline preload="auto" aria-label="クレジット動画"></video></div>
+      <div id="credits-band" class="credits-band"><div id="credits-track" class="credits-track"></div></div>
+      <div class="credits-playback"><p id="ed-status" class="message" role="status"></p><button id="credits-retry" type="button" class="secondary" hidden>再生する</button></div>
+    </section>
+
+    <section class="screen afterword-screen" id="afterword-screen" aria-label="制作にあたって" hidden>
+      <div class="afterword-copy">
+        <p>本作は、「<span id="afterword-secret">~BanG Dream! Our Notes~ だんらんTV！</span>」にいつお招きいただいても、視聴者プレゼントのスター300個を懸けたスライドパズルに、万全の態勢で臨めるよう制作いたしました。</p>
+        <p>皆様も奮ってご活用いただき、来るべきその日に備えていただければ幸いです。</p>
+      </div>
+      <div class="afterword-controls">
+        <p id="afterword-status" class="message" role="status"></p>
+        <button id="afterword-retry" class="secondary" type="button" hidden>音声を再生</button>
+      </div>
+    </section>
+  </main>
+
+  <dialog id="settings-dialog" class="panel settings-panel" aria-labelledby="settings-heading">
+    <div class="panel-heading"><h2 id="settings-heading">設定</h2><button id="settings-close" class="text-button" aria-label="設定を閉じる">閉じる ×</button></div>
+    <div class="option-row"><button id="music-label" class="option-label" type="button" aria-pressed="false" title="音楽のミュート切替">音楽</button><input id="music-volume" type="range" min="0" max="100" value="65" aria-labelledby="music-label"><output id="music-output" for="music-volume">65</output></div>
+    <div class="option-row"><button id="sound-label" class="option-label" type="button" aria-pressed="false" title="効果音のミュート切替">効果音</button><input id="sound-volume" type="range" min="0" max="100" value="45" aria-labelledby="sound-label"><output id="sound-output" for="sound-volume">45</output></div>
+    <div id="voice-volume-row" class="option-row" hidden><button id="voice-label" class="option-label" type="button" aria-pressed="false" title="声のミュート切替">声</button><input id="voice-volume" type="range" min="0" max="100" value="45" aria-labelledby="voice-label"><output id="voice-output" for="voice-volume">45</output></div>
+    <div class="option-row"><button id="brightness-label" class="option-label" type="button" aria-pressed="false" title="消灯・点灯の切替">明るさ</button><input id="brightness-level" type="range" min="15" max="100" value="100" aria-labelledby="brightness-label"><output id="brightness-output" for="brightness-level">100</output></div>
+    <div class="background-option"><label for="background-color">背景色</label><input id="background-color" type="color" value="#fff9fc" aria-label="背景色を自由に選ぶ"><div id="background-swatches" class="background-swatches" aria-label="背景色の候補">
+      <button type="button" data-color="#fff9fc" style="--swatch:#fff9fc" aria-label="白" aria-pressed="true"></button>
+      <button type="button" data-color="#ffe1ed" style="--swatch:#ffe1ed" aria-label="ピンク" aria-pressed="false"></button>
+      <button type="button" data-color="#dceefa" style="--swatch:#dceefa" aria-label="水色" aria-pressed="false"></button>
+      <button type="button" data-color="#e0f1df" style="--swatch:#e0f1df" aria-label="緑" aria-pressed="false"></button>
+      <button type="button" data-color="#fff1cd" style="--swatch:#fff1cd" aria-label="黄色" aria-pressed="false"></button>
+      <button type="button" data-color="#25222c" style="--swatch:#25222c" aria-label="黒" aria-pressed="false"></button>
+    </div></div>
+    <div id="voice-fx-row" class="voice-fx-row" hidden><span id="voice-fx-label">Voice FX</span><div class="voice-fx-buttons" role="group" aria-labelledby="voice-fx-label"><button id="voice-fx-on" type="button" aria-pressed="true">ON</button><button id="voice-fx-off" type="button" aria-pressed="false">OFF</button></div></div>
+    <button id="open-credits" class="credits-link" type="button">クレジット <span aria-hidden="true">→</span></button>
+  </dialog>
+
+  <dialog id="hint-dialog" class="panel hint-panel" aria-labelledby="hint-heading">
+    <h2 id="hint-heading">クリアまでの最短手数</h2>
+    <p id="hint-answer" class="hint-answer" role="status" aria-live="polite">計算中…</p>
+    <p id="hint-progress" class="hint-progress"></p>
+    <p class="hint-note">ヒントを開いている間は<br>時間が止まります。</p>
+    <button id="hint-close" class="primary" type="button">とじる</button>
+  </dialog>
+
+  <dialog id="result-dialog" class="panel result-panel" aria-labelledby="result-heading">
+    <div id="result-symbol" class="result-symbol" aria-hidden="true">○</div><h2 id="result-heading">クリア！</h2><div id="result-player"></div>
+    <dl class="result-stats"><div><dt>経過時間</dt><dd id="result-time"></dd></div><div><dt>手数</dt><dd id="result-moves"></dd></div></dl>
+    <button id="result-retry" class="primary">もう一回</button><button id="result-setup" class="secondary">設定にもどる</button>
+  </dialog>
+
+  <audio id="bgm" src="assets/audio/stonejaws-lair.mp3" loop preload="auto"></audio>
+  <audio id="afterword-voice" src="assets/audio/本作はバンドリアワーノーツだんらんTVにいつお招きいただいても.mp3" preload="auto"></audio>
+  <audio id="afterword-fx" src="assets/audio/afterword-fx.mp3" preload="auto"></audio>
+  <noscript>このゲームを遊ぶには JavaScript を有効にしてください。</noscript>
+</body>
+</html>
